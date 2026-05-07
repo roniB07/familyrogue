@@ -18,26 +18,27 @@ class WaveManager {
     return 'normal';
   }
 
-  getEnemy() {
+  getEnemy(excludeId) {
     this.currentBiome = this.getBiome();
-    var pool = this.currentBiome.enemies;
+    var pool = this.currentBiome.enemies.filter(function (id) { return id !== excludeId; });
+    if (pool.length === 0) pool = this.currentBiome.enemies;
     var id = Phaser.Utils.Array.GetRandom(pool);
     var character = CHARACTER_BY_ID[id] || CHARACTERS[0];
-    var level = Math.floor(this.currentWave * 1.2) + 5;
+    var level = Math.floor(this.currentWave * 1.05) + 4;
     var type = this.getWaveType();
     var enemy = BattleSystem.createFighter(character, level, type === 'boss');
     if (type === 'trainer') {
-      enemy.stats.hp = Math.floor(enemy.stats.hp * 1.15);
+      enemy.stats.hp = Math.floor(enemy.stats.hp * 1.08);
       enemy.currentHp = enemy.stats.hp;
-      enemy.stats.atk = Math.floor(enemy.stats.atk * 1.1);
-      enemy.stats.spatk = Math.floor(enemy.stats.spatk * 1.1);
+      enemy.stats.atk = Math.floor(enemy.stats.atk * 1.06);
+      enemy.stats.spatk = Math.floor(enemy.stats.spatk * 1.06);
     }
     return enemy;
   }
 
-  nextWave() {
+  nextWave(excludeId) {
     this.currentWave += 1;
     this.currentBiome = this.getBiome();
-    return this.getEnemy();
+    return this.getEnemy(excludeId);
   }
 }

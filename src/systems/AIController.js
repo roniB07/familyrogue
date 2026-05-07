@@ -11,7 +11,7 @@ class AIController {
     var weaknessMoves = usable.filter(function (move) {
       return BattleSystem.typeMultiplier(move.type, player.type, enemy, player) > 1;
     });
-    if (weaknessMoves.length > 0 && Math.random() < 0.6) {
+    if (weaknessMoves.length > 0 && Math.random() < 0.45) {
       return Phaser.Utils.Array.GetRandom(weaknessMoves);
     }
 

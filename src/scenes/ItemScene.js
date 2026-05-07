@@ -11,24 +11,29 @@ class ItemScene extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#11131b');
-    this.add.text(42, 38, this.bossReward ? 'Boss besiegt: Vollheilung + Item' : 'Wave geschafft: Waehle ein Item', { fontSize: '28px', fontStyle: 'bold', color: '#ffffff' });
-    this.add.text(44, 80, this.player.name + ' HP ' + Math.ceil(this.player.currentHp) + '/' + this.player.stats.hp, { fontSize: '16px', color: '#cbd2e1' });
+    this.cameras.main.setBackgroundColor('#8bd7ff');
+    this.add.rectangle(640, 360, 1280, 720, 0xbcecff, 0.6);
+    this.add.ellipse(640, 708, 1500, 230, 0x6ec655, 1);
+    this.add.rectangle(640, 360, 1140, 610, 0xf8fbff, 0.96).setStrokeStyle(4, 0x2454a6);
+    this.add.text(74, 56, this.bossReward ? 'Boss besiegt: Vollheilung + Item' : 'Wave geschafft: Waehle ein Item', { fontSize: '36px', fontStyle: 'bold', color: '#2454a6' });
+    this.add.text(78, 112, this.player.name + ' HP ' + Math.ceil(this.player.currentHp) + '/' + this.player.stats.hp + ' | Score ' + (this.runStats.score || 0) + ' | $ ' + (this.runStats.money || 0), { fontSize: '20px', color: '#2454a6' });
     this.items = Phaser.Utils.Array.Shuffle(ITEMS.slice()).slice(0, 3);
     this.items.forEach(function (item, index) {
-      this.drawItemCard(item, 130 + index * 225, 170);
+      this.drawItemCard(item, 300 + index * 340, 330);
     }, this);
   }
 
   drawItemCard(item, x, y) {
-    var rect = this.add.rectangle(x, y, 190, 220, 0x202838).setStrokeStyle(2, 0x4b556f).setInteractive({ useHandCursor: true });
-    this.add.text(x, y - 78, item.name, { fontSize: '20px', fontStyle: 'bold', color: '#ffffff', align: 'center', wordWrap: { width: 160 } }).setOrigin(0.5);
-    this.add.text(x, y - 25, item.category.toUpperCase(), { fontSize: '13px', color: '#90caf9' }).setOrigin(0.5);
-    this.add.text(x, y + 22, item.description, { fontSize: '16px', color: '#ffd166', align: 'center', wordWrap: { width: 155 } }).setOrigin(0.5);
-    this.add.text(x, y + 78, 'NEHMEN', { fontSize: '16px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
+    var rarityColor = item.category === 'special' ? 0xc77dff : item.category === 'stat' ? 0xffd166 : 0x7bd88f;
+    var rect = this.add.rectangle(x, y, 270, 270, 0xffffff).setStrokeStyle(4, 0x2454a6).setInteractive({ useHandCursor: true });
+    this.add.rectangle(x, y - 108, 270, 42, rarityColor).setStrokeStyle(2, 0x2454a6);
+    this.add.text(x, y - 92, item.name, { fontSize: '24px', fontStyle: 'bold', color: '#111827', align: 'center', wordWrap: { width: 230, useAdvancedWrap: true } }).setOrigin(0.5);
+    this.add.text(x, y - 32, item.category.toUpperCase(), { fontSize: '15px', fontStyle: 'bold', color: '#2454a6' }).setOrigin(0.5);
+    this.add.text(x, y + 28, item.description, { fontSize: '19px', color: '#111827', align: 'center', wordWrap: { width: 225, useAdvancedWrap: true } }).setOrigin(0.5);
+    this.add.text(x, y + 100, 'NEHMEN', { fontSize: '18px', fontStyle: 'bold', color: '#2454a6' }).setOrigin(0.5);
     rect.on('pointerdown', function () {
       BattleSystem.applyItem(this.player, item);
-      var enemy = this.waveManager.nextWave();
+      var enemy = this.waveManager.nextWave(this.player.id);
       this.scene.start('BattleScene', {
         player: this.player,
         waveManager: this.waveManager,

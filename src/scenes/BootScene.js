@@ -6,6 +6,6 @@ class BootScene extends Phaser.Scene {
   preload() {}
 
   create() {
-    this.scene.start('MenuScene');
+    this.scene.start('StartScene');
   }
 }

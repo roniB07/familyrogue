@@ -41,10 +41,10 @@ class BattleSystem {
       spatk: Math.floor(character.baseStats.spatk * scale)
     };
     if (isBoss) {
-      stats.hp = Math.floor(stats.hp * 1.65);
-      stats.atk = Math.floor(stats.atk * 1.12);
-      stats.def = Math.floor(stats.def * 1.12);
-      stats.spatk = Math.floor(stats.spatk * 1.12);
+      stats.hp = Math.floor(stats.hp * 1.45);
+      stats.atk = Math.floor(stats.atk * 1.08);
+      stats.def = Math.floor(stats.def * 1.08);
+      stats.spatk = Math.floor(stats.spatk * 1.08);
     }
     return {
       id: character.id,
@@ -98,7 +98,7 @@ class BattleSystem {
     if (!move) move = BattleSystem.basicMove();
     var accuracyBonus = attacker.runMods && attacker.runMods.accuracy ? attacker.runMods.accuracy * 100 : 0;
     if (move.accuracy + accuracyBonus < Phaser.Math.Between(1, 100)) {
-      return { hit: false, damage: 0, messages: [attacker.name + ' verfehlt!'] };
+      return { hit: false, damage: 0, messages: [attacker.name + ' setzt ' + move.name + ' ein.', attacker.name + ' verfehlt ' + defender.name + '!'] };
     }
     if (move.currentPp !== undefined) move.currentPp = Math.max(0, move.currentPp - 1);
 
@@ -106,7 +106,7 @@ class BattleSystem {
     var damageResult = BattleSystem.calculateDamage(attacker, defender, move, waveType);
     if (damageResult.damage > 0) {
       defender.currentHp = Math.max(0, defender.currentHp - damageResult.damage);
-      messages.push('-' + damageResult.damage + ' HP');
+      messages.push(defender.name + ' wurde getroffen: -' + damageResult.damage + ' HP');
       if (damageResult.critical) messages.push('KRITISCH!');
       if (damageResult.multiplier >= 1.5) messages.push('Sehr effektiv!');
       if (damageResult.multiplier <= 0.75) messages.push('Nicht sehr effektiv.');
@@ -122,17 +122,17 @@ class BattleSystem {
       var amount = Math.floor(attacker.stats.hp * (parseInt(parts[1], 10) / 100));
       if (attacker.passive === 'Stammesaelteste') amount = Math.floor(amount * 1.1);
       attacker.currentHp = Math.min(attacker.stats.hp, attacker.currentHp + amount);
-      messages.push('Heilt ' + amount + ' HP');
+      messages.push(attacker.name + ' heilt ' + amount + ' HP.');
     }
     if (parts[0] === 'damage') {
       var bonus = parseInt(parts[1], 10);
       defender.currentHp = Math.max(0, defender.currentHp - bonus);
-      messages.push('Bonus-Schaden ' + bonus);
+      messages.push(defender.name + ' nimmt ' + bonus + ' Bonus-Schaden.');
     }
     if (parts[0] === 'stat' && parts[1] === 'boost') {
       var stat = parts[2];
       attacker.stages[stat] = Math.min(6, (attacker.stages[stat] || 0) + 1);
-      messages.push(attacker.name + ' ' + stat.toUpperCase() + ' steigt!');
+      messages.push(attacker.name + ': ' + stat.toUpperCase() + ' steigt!');
       if (attacker.passive === 'Guter Rat') {
         attacker.currentHp = Math.min(attacker.stats.hp, attacker.currentHp + 8);
       }
@@ -140,7 +140,7 @@ class BattleSystem {
     if (parts[0] === 'debuff') {
       var debuffStat = parts[1];
       defender.stages[debuffStat] = Math.max(-6, (defender.stages[debuffStat] || 0) - 1);
-      messages.push(defender.name + ' ' + debuffStat.toUpperCase() + ' sinkt!');
+      messages.push(defender.name + ' ist verwirrt: ' + debuffStat.toUpperCase() + ' sinkt!');
     }
   }
 
