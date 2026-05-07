@@ -1,0 +1,20 @@
+const ITEMS = [
+  { id: 'hp_small', name: 'Kleine Suppe', category: 'healing', description: '+30 HP', apply: { healFlat: 30 } },
+  { id: 'hp_large', name: 'Grosse Suppe', category: 'healing', description: '+80 HP', apply: { healFlat: 80 } },
+  { id: 'full_heal', name: 'Familientisch', category: 'healing', description: 'Volle HP', apply: { fullHeal: true } },
+  { id: 'regen_tea', name: 'Regentee', category: 'healing', description: '+15 max HP und Heilung', apply: { maxHp: 15, healFlat: 45 } },
+  { id: 'bandage', name: 'Pflasterrolle', category: 'healing', description: '+50 HP', apply: { healFlat: 50 } },
+  { id: 'leftovers', name: 'Reste Teller', category: 'healing', description: '+5% Run-Regeneration', apply: { regen: 0.05 } },
+  { id: 'atk_boost', name: 'Protein Byrek', category: 'stat', description: '+10% ATK', apply: { stat: 'atk', percent: 0.1 } },
+  { id: 'def_boost', name: 'Winterjacke', category: 'stat', description: '+10% DEF', apply: { stat: 'def', percent: 0.1 } },
+  { id: 'spd_boost', name: 'Neue Sneaker', category: 'stat', description: '+10% SPD', apply: { stat: 'spd', percent: 0.1 } },
+  { id: 'spatk_boost', name: 'WLAN Upgrade', category: 'stat', description: '+10% SPATK', apply: { stat: 'spatk', percent: 0.1 } },
+  { id: 'hp_boost', name: 'Grosse Portion', category: 'stat', description: '+10% max HP', apply: { stat: 'hp', percent: 0.1, healFlat: 30 } },
+  { id: 'balanced_boost', name: 'Familiensegen', category: 'stat', description: '+5% alle Stats', apply: { allStats: 0.05 } },
+  { id: 'pp_restore', name: 'Powernap', category: 'special', description: 'Alle PP voll', apply: { ppRestore: true } },
+  { id: 'type_charm', name: 'Typen-Amulett', category: 'special', description: '+25% Typen-Bonus', apply: { typeCharm: 0.25 } },
+  { id: 'crit_charm', name: 'Roter Blick', category: 'special', description: '+6% Crit-Chance', apply: { critChance: 0.06 } },
+  { id: 'boss_key', name: 'Boss-Schluessel', category: 'special', description: '+10% Boss-Schaden', apply: { bossDamage: 0.1 } },
+  { id: 'lucky_coin', name: 'Gluecksmuenze', category: 'special', description: '+10% Genauigkeit', apply: { accuracy: 0.1 } },
+  { id: 'shield_pin', name: 'Schildnadel', category: 'special', description: '-8% erhaltener Schaden', apply: { damageReduction: 0.08 } }
+];
