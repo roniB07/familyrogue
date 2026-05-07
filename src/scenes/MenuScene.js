@@ -4,8 +4,10 @@ class MenuScene extends Phaser.Scene {
   }
 
   create() {
+    this.isMobile = this.scale.height > this.scale.width;
     this.save = SaveSystem.load();
     this.selected = null;
+    if (this.isMobile) return this.createMobile();
     this.cameras.main.setBackgroundColor('#7fd0ff');
     for (var i = 0; i < 60; i += 1) {
       this.add.rectangle(Phaser.Math.Between(0, 1280), Phaser.Math.Between(0, 720), 2, 2, 0xffffff, Phaser.Math.FloatBetween(0.25, 0.9));
@@ -33,29 +35,59 @@ class MenuScene extends Phaser.Scene {
     this.drawDetails(null);
   }
 
+  createMobile() {
+    this.cameras.main.setBackgroundColor('#7fd0ff');
+    for (var i = 0; i < 70; i += 1) {
+      this.add.rectangle(Phaser.Math.Between(0, 720), Phaser.Math.Between(0, 1280), 2, 2, 0xffffff, Phaser.Math.FloatBetween(0.25, 0.9));
+    }
+    this.add.rectangle(360, 640, 720, 1280, 0xbcecff, 0.55);
+    this.add.ellipse(360, 1260, 920, 210, 0x6ec655, 1);
+    this.add.rectangle(360, 640, 680, 1208, 0xf8fbff, 0.96).setStrokeStyle(4, 0x2454a6);
+    this.add.text(38, 34, 'FamilyRogue', {
+      fontFamily: '"Cinzel Decorative", Georgia, serif',
+      fontSize: '42px',
+      fontStyle: 'bold',
+      color: '#fff6cf',
+      stroke: '#2454a6',
+      strokeThickness: 5
+    });
+    this.add.text(42, 94, 'Waehle einen freigeschalteten Kaempfer', { fontSize: '20px', color: '#2454a6' });
+    this.add.text(42, 124, 'Runs ' + this.save.totalRuns + '  Best Wave ' + this.save.highestWave, { fontSize: '17px', color: '#2454a6' });
+    this.add.rectangle(360, 902, 636, 262, 0xf8fafc, 0.97).setStrokeStyle(4, 0x111827);
+    this.add.rectangle(360, 784, 636, 36, 0xffd166).setStrokeStyle(2, 0x2454a6);
+    this.add.text(56, 772, 'CHARACTER INFO', { fontSize: '19px', fontStyle: 'bold', color: '#111827' });
+
+    this.cardLayer = this.add.container(0, 0);
+    this.drawCards();
+    this.drawPlayButton();
+    this.drawDetails(null);
+  }
+
   drawCards() {
     var unlocked = this.save.unlockedCharacters;
     CHARACTERS.forEach(function (character, index) {
-      var col = index % 3;
-      var row = Math.floor(index / 5);
-      row = Math.floor(index / 3);
-      var x = 76 + col * 208;
-      var y = 150 + row * 96;
+      var col = this.isMobile ? index % 2 : index % 3;
+      var row = this.isMobile ? Math.floor(index / 2) : Math.floor(index / 3);
+      var x = this.isMobile ? 52 + col * 326 : 76 + col * 208;
+      var y = this.isMobile ? 170 + row * 74 : 150 + row * 96;
       var isUnlocked = unlocked.indexOf(character.id) !== -1;
       var card = this.add.container(x, y);
-      var bg = this.add.rectangle(0, 0, 180, 70, isUnlocked ? 0xffffff : 0xd6e0ef).setOrigin(0);
+      var cardWidth = this.isMobile ? 292 : 180;
+      var cardHeight = this.isMobile ? 58 : 70;
+      var bg = this.add.rectangle(0, 0, cardWidth, cardHeight, isUnlocked ? 0xffffff : 0xd6e0ef).setOrigin(0);
       bg.setStrokeStyle(3, character.id === this.selected ? 0xffa62b : 0x2454a6);
-      var portrait = this.add.rectangle(14, 14, 42, 42, Phaser.Display.Color.HexStringToColor(character.color).color).setOrigin(0);
-      var initials = this.add.text(35, 35, character.initials, { fontSize: '17px', fontStyle: 'bold', color: '#ffffff', stroke: '#111827', strokeThickness: 3 }).setOrigin(0.5);
-      var name = this.add.text(68, 18, isUnlocked ? character.name : 'Gesperrt', {
-        fontSize: '16px',
+      var portrait = this.add.rectangle(12, 10, this.isMobile ? 38 : 42, this.isMobile ? 38 : 42, Phaser.Display.Color.HexStringToColor(character.color).color).setOrigin(0);
+      var initials = this.add.text(31, 29, character.initials, { fontSize: this.isMobile ? '16px' : '17px', fontStyle: 'bold', color: '#ffffff', stroke: '#111827', strokeThickness: 3 }).setOrigin(0.5);
+      var nameWidth = this.isMobile ? 220 : 100;
+      var name = this.add.text(62, this.isMobile ? 13 : 18, isUnlocked ? character.name : 'Gesperrt', {
+        fontSize: this.isMobile ? '18px' : '16px',
         fontStyle: 'bold',
         color: isUnlocked ? '#111827' : '#6f7788',
-        wordWrap: { width: 100, useAdvancedWrap: true },
-        fixedWidth: 100,
+        wordWrap: { width: nameWidth, useAdvancedWrap: true },
+        fixedWidth: nameWidth,
         fixedHeight: 36
       });
-      this.fitTextToBox(name, 100, 36, 11);
+      this.fitTextToBox(name, nameWidth, 36, 11);
       card.add([bg, portrait, initials, name]);
       if (isUnlocked) {
         bg.setInteractive({ useHandCursor: true }).on('pointerdown', function () {
@@ -72,6 +104,20 @@ class MenuScene extends Phaser.Scene {
   }
 
   drawPlayButton() {
+    if (this.isMobile) {
+      this.add.rectangle(360, 1144, 636, 58, 0xffffff).setStrokeStyle(3, 0x2454a6);
+      this.selectionText = this.add.text(62, 1126, 'Kein Starter gewaehlt', { fontSize: '18px', fontStyle: 'bold', color: '#111827', wordWrap: { width: 596, useAdvancedWrap: true }, fixedWidth: 596, fixedHeight: 40 });
+      var mobileButton = this.add.rectangle(360, 1220, 636, 62, 0xffd166).setInteractive({ useHandCursor: true });
+      mobileButton.setStrokeStyle(3, 0x2454a6);
+      this.add.text(360, 1220, 'START RUN', { fontSize: '26px', fontStyle: 'bold', color: '#111827' }).setOrigin(0.5);
+      mobileButton.on('pointerdown', function () {
+        if (!this.selected) return;
+        var character = CHARACTER_BY_ID[this.selected];
+        var fighter = BattleSystem.createFighter(character, 5, false);
+        this.scene.start('BattleScene', { player: fighter, wave: 1, runStats: { damage: 0, score: 0, money: 0, startTime: Date.now() } });
+      }, this);
+      return;
+    }
     this.add.rectangle(392, 650, 650, 58, 0xffffff).setStrokeStyle(3, 0x2454a6);
     this.selectionText = this.add.text(86, 632, 'Kein Starter gewaehlt', { fontSize: '17px', fontStyle: 'bold', color: '#111827', wordWrap: { width: 600, useAdvancedWrap: true }, fixedWidth: 600, fixedHeight: 42 });
     var button = this.add.rectangle(1030, 650, 260, 60, 0xffd166).setInteractive({ useHandCursor: true });
@@ -92,6 +138,22 @@ class MenuScene extends Phaser.Scene {
   drawDetails(character) {
     if (this.detailLayer) this.detailLayer.destroy(true);
     this.detailLayer = this.add.container(0, 0);
+    if (this.isMobile) {
+      if (!character) {
+        this.detailLayer.add(this.add.text(62, 828, 'Waehle oben einen Charakter.', { fontSize: '21px', color: '#111827', wordWrap: { width: 580 } }));
+        return;
+      }
+      var mobilePortrait = this.add.rectangle(96, 850, 82, 66, Phaser.Display.Color.HexStringToColor(character.color).color).setStrokeStyle(3, 0x111827);
+      var mobileInitials = this.add.text(96, 850, character.initials, { fontSize: '27px', fontStyle: 'bold', color: '#ffffff', stroke: '#111827', strokeThickness: 4 }).setOrigin(0.5);
+      var mobileTitle = this.add.text(154, 818, character.name, { fontSize: '24px', fontStyle: 'bold', color: '#111827', wordWrap: { width: 460 } });
+      var mobileType = this.add.text(154, 858, character.type.toUpperCase() + ' | Kosten ' + character.starterCost, { fontSize: '17px', fontStyle: 'bold', color: '#2563eb' });
+      var mobilePassive = this.add.text(62, 922, character.passive, { fontSize: '20px', fontStyle: 'bold', color: '#111827' });
+      var mobilePassiveDesc = this.add.text(62, 952, character.passiveDesc, { fontSize: '17px', color: '#334155', wordWrap: { width: 596, useAdvancedWrap: true } });
+      var mobileDesc = this.add.text(62, 1002, character.description, { fontSize: '17px', color: '#111827', wordWrap: { width: 596, useAdvancedWrap: true } });
+      var mobileStats = this.add.text(62, 1060, 'HP ' + character.baseStats.hp + '  ATK ' + character.baseStats.atk + '  DEF ' + character.baseStats.def + '  SPD ' + character.baseStats.spd + '  SPATK ' + character.baseStats.spatk, { fontSize: '16px', fontStyle: 'bold', color: '#111827', wordWrap: { width: 596, useAdvancedWrap: true } });
+      this.detailLayer.add([mobilePortrait, mobileInitials, mobileTitle, mobileType, mobilePassive, mobilePassiveDesc, mobileDesc, mobileStats]);
+      return;
+    }
     if (!character) {
       this.detailLayer.add(this.add.text(778, 210, 'Waehle links einen Charakter.', { fontSize: '20px', color: '#111827', wordWrap: { width: 320 } }));
       return;

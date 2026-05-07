@@ -15,6 +15,7 @@ class BattleScene extends Phaser.Scene {
   }
 
   create() {
+    this.isMobile = this.scale.height > this.scale.width;
     this.waveType = this.waveManager.getWaveType();
     this.biome = this.waveManager.currentBiome;
     this.drawArena();
@@ -26,6 +27,7 @@ class BattleScene extends Phaser.Scene {
   }
 
   drawArena() {
+    if (this.isMobile) return this.drawMobileArena();
     var bgColor = Phaser.Display.Color.HexStringToColor(this.biome.bgColor).color;
     this.cameras.main.setBackgroundColor('#8bd7ff');
     this.add.rectangle(640, 96, 1280, 192, 0x8bd7ff);
@@ -50,7 +52,40 @@ class BattleScene extends Phaser.Scene {
     this.add.text(1060, 16, 'FamilyRogue', { fontSize: '21px', fontStyle: 'bold', color: '#fff6cf' });
   }
 
+  drawMobileArena() {
+    var bgColor = Phaser.Display.Color.HexStringToColor(this.biome.bgColor).color;
+    this.cameras.main.setBackgroundColor('#8bd7ff');
+    this.add.rectangle(360, 128, 720, 256, 0x8bd7ff);
+    this.add.circle(104, 128, 42, 0xffffff, 0.38);
+    this.add.circle(608, 158, 30, 0xffffff, 0.26);
+    this.add.rectangle(360, 408, 720, 560, bgColor, 0.66);
+    this.add.rectangle(360, 408, 720, 560, 0x7bd88f, 0.18);
+    for (var i = 0; i < 8; i += 1) {
+      this.add.rectangle(54 + i * 92, 404 + (i % 2) * 22, 58, 5, 0xffffff, 0.14);
+    }
+    this.add.rectangle(360, 670, 720, 220, 0x5aa43d);
+    this.add.ellipse(500, 318, 270, 64, 0x5f8f45, 1);
+    this.add.ellipse(500, 318, 238, 44, 0xb6d96a, 1);
+    this.add.ellipse(206, 640, 318, 74, 0x5f8f45, 1);
+    this.add.ellipse(206, 640, 282, 52, 0xb6d96a, 1);
+    this.add.rectangle(360, 34, 720, 68, 0x2454a6, 0.96);
+    this.add.text(24, 17, 'Wave ' + this.waveManager.currentWave, { fontSize: '21px', fontStyle: 'bold', color: '#ffffff' });
+    this.add.text(144, 18, this.biome.name, { fontSize: '19px', color: '#c7d2fe', fixedWidth: 190, fixedHeight: 28 });
+    this.add.text(340, 18, this.waveType.toUpperCase(), { fontSize: '19px', color: this.waveType === 'boss' ? '#ff7070' : '#ffd166' });
+    this.scoreText = this.add.text(24, 50, 'Score ' + this.runStats.score, { fontSize: '16px', color: '#ffffff' });
+    this.moneyText = this.add.text(188, 50, '$ ' + this.runStats.money, { fontSize: '16px', color: '#fff6cf' });
+    this.add.text(510, 17, 'FamilyRogue', { fontSize: '20px', fontStyle: 'bold', color: '#fff6cf' });
+  }
+
   drawFighters() {
+    if (this.isMobile) {
+      this.enemySprite = this.drawCharacter(504, 268, this.enemy, 1.18);
+      this.enemyHpBar = this.drawHpBar(24, 92, this.enemy, true);
+
+      this.playerSprite = this.drawCharacter(208, 612, this.player, 1.32);
+      this.playerHpBar = this.drawHpBar(328, 518, this.player, false);
+      return;
+    }
     this.enemySprite = this.drawCharacter(900, 198, this.enemy, 1.1);
     this.enemyHpBar = this.drawHpBar(70, 80, this.enemy, true);
 
@@ -108,6 +143,7 @@ class BattleScene extends Phaser.Scene {
   }
 
   drawMoves() {
+    if (this.isMobile) return this.drawMobileMoves();
     this.moveButtons = [];
     this.add.rectangle(640, 624, 1280, 192, 0x2e66c8).setStrokeStyle(4, 0xf8fafc);
     this.add.rectangle(302, 624, 560, 156, 0xf8fafc, 1).setStrokeStyle(4, 0x111827);
@@ -144,6 +180,43 @@ class BattleScene extends Phaser.Scene {
     }, this);
   }
 
+  drawMobileMoves() {
+    this.moveButtons = [];
+    this.add.rectangle(360, 1038, 720, 484, 0x2e66c8).setStrokeStyle(4, 0xf8fafc);
+    this.add.rectangle(360, 820, 660, 128, 0xf8fafc, 1).setStrokeStyle(4, 0x111827);
+    this.add.rectangle(360, 1060, 660, 366, 0xf8fafc, 1).setStrokeStyle(4, 0x111827);
+    this.add.rectangle(360, 1060, 626, 326, 0xeaf7ff, 1).setStrokeStyle(2, 0x91c8ff);
+    this.player.moves.forEach(function (move, index) {
+      var col = index % 2;
+      var row = Math.floor(index / 2);
+      var x = 198 + col * 324;
+      var y = 980 + row * 120;
+      var rect = this.add.rectangle(x + 4, y + 4, 300, 96, 0x111827, 0.22);
+      var face = this.add.rectangle(x, y, 300, 96, move.currentPp > 0 ? 0xffffff : 0xcbd2df).setInteractive({ useHandCursor: move.currentPp > 0 });
+      face.setStrokeStyle(3, 0x243044);
+      var typeColor = this.getTypeColor(move.type);
+      this.add.rectangle(x - 136, y, 9, 76, typeColor).setOrigin(0.5);
+      var label = this.add.text(x - 134, y - 36, move.name, {
+        fontSize: '19px',
+        fontStyle: 'bold',
+        color: '#111827',
+        wordWrap: { width: 264, useAdvancedWrap: true },
+        fixedWidth: 264,
+        fixedHeight: 34
+      });
+      this.fitTextToBox(label, 264, 34, 13);
+      var info = this.add.text(x - 134, y + 2, this.getMoveInfo(move), {
+        fontSize: '13px',
+        color: '#475569',
+        fixedWidth: 264,
+        fixedHeight: 48,
+        wordWrap: { width: 264, useAdvancedWrap: true }
+      });
+      face.on('pointerdown', function () { this.playerChooseMove(move); }, this);
+      this.moveButtons.push({ rect: face, shadow: rect, label: label, info: info, move: move });
+    }, this);
+  }
+
   refreshMoves() {
     this.moveButtons.forEach(function (button) {
       button.rect.fillColor = button.move.currentPp > 0 ? 0xeaf2ff : 0xb8becb;
@@ -153,6 +226,18 @@ class BattleScene extends Phaser.Scene {
   }
 
   drawLog() {
+    if (this.isMobile) {
+      this.logText = this.add.text(54, 770, '', {
+        fontSize: '20px',
+        fontStyle: 'bold',
+        color: '#111827',
+        wordWrap: { width: 612, useAdvancedWrap: true },
+        fixedWidth: 612,
+        fixedHeight: 96,
+        maxLines: 3
+      });
+      return;
+    }
     this.logText = this.add.text(38, 570, '', {
       fontSize: '18px',
       fontStyle: 'bold',
@@ -182,8 +267,10 @@ class BattleScene extends Phaser.Scene {
 
   drawBattleMenu() {
     var menu = this.add.container(0, 0);
-    var box = this.add.rectangle(1190, 92, 150, 58, 0xf8fafc, 0.97).setStrokeStyle(3, 0x111827).setInteractive({ useHandCursor: true });
-    var text = this.add.text(1190, 92, 'MENU', { fontSize: '18px', fontStyle: 'bold', color: '#111827' }).setOrigin(0.5);
+    var x = this.isMobile ? 626 : 1190;
+    var y = this.isMobile ? 112 : 92;
+    var box = this.add.rectangle(x, y, 150, 58, 0xf8fafc, 0.97).setStrokeStyle(3, 0x111827).setInteractive({ useHandCursor: true });
+    var text = this.add.text(x, y, 'MENU', { fontSize: '18px', fontStyle: 'bold', color: '#111827' }).setOrigin(0.5);
     menu.add([box, text]);
     box.on('pointerdown', function () {
       this.toggleRunMenu();
@@ -197,13 +284,17 @@ class BattleScene extends Phaser.Scene {
       return;
     }
     this.runMenuLayer = this.add.container(0, 0);
-    var blocker = this.add.rectangle(640, 360, 1280, 720, 0x2454a6, 0.18).setInteractive();
-    var panel = this.add.rectangle(640, 360, 430, 260, 0xffffff, 0.98).setStrokeStyle(4, 0x2454a6);
-    var title = this.add.text(640, 270, 'RUN MENU', { fontSize: '28px', fontStyle: 'bold', color: '#2454a6' }).setOrigin(0.5);
-    var continueBtn = this.add.rectangle(640, 348, 300, 54, 0xeaf7ff).setStrokeStyle(3, 0x2454a6).setInteractive({ useHandCursor: true });
-    var continueText = this.add.text(640, 348, 'WEITERKAEMPFEN', { fontSize: '20px', fontStyle: 'bold', color: '#111827' }).setOrigin(0.5);
-    var endBtn = this.add.rectangle(640, 424, 300, 54, 0xffd2c9).setStrokeStyle(3, 0x2454a6).setInteractive({ useHandCursor: true });
-    var endText = this.add.text(640, 424, 'RUN BEENDEN', { fontSize: '20px', fontStyle: 'bold', color: '#111827' }).setOrigin(0.5);
+    var w = this.isMobile ? 720 : 1280;
+    var h = this.isMobile ? 1280 : 720;
+    var cx = w / 2;
+    var cy = h / 2;
+    var blocker = this.add.rectangle(cx, cy, w, h, 0x2454a6, 0.18).setInteractive();
+    var panel = this.add.rectangle(cx, cy, 430, 260, 0xffffff, 0.98).setStrokeStyle(4, 0x2454a6);
+    var title = this.add.text(cx, cy - 90, 'RUN MENU', { fontSize: '28px', fontStyle: 'bold', color: '#2454a6' }).setOrigin(0.5);
+    var continueBtn = this.add.rectangle(cx, cy - 12, 300, 54, 0xeaf7ff).setStrokeStyle(3, 0x2454a6).setInteractive({ useHandCursor: true });
+    var continueText = this.add.text(cx, cy - 12, 'WEITERKAEMPFEN', { fontSize: '20px', fontStyle: 'bold', color: '#111827' }).setOrigin(0.5);
+    var endBtn = this.add.rectangle(cx, cy + 64, 300, 54, 0xffd2c9).setStrokeStyle(3, 0x2454a6).setInteractive({ useHandCursor: true });
+    var endText = this.add.text(cx, cy + 64, 'RUN BEENDEN', { fontSize: '20px', fontStyle: 'bold', color: '#111827' }).setOrigin(0.5);
     continueBtn.on('pointerdown', function () { this.toggleRunMenu(); }, this);
     endBtn.on('pointerdown', function () { this.endRun(false); }, this);
     this.runMenuLayer.add([blocker, panel, title, continueBtn, continueText, endBtn, endText]);
