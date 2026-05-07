@@ -139,8 +139,14 @@ class BattleSystem {
     }
     if (parts[0] === 'debuff') {
       var debuffStat = parts[1];
+      var debuffChance = attacker.isBoss ? 0.55 : 0.4;
+      if (defender.passive === 'Stammesaelteste') debuffChance *= 0.45;
+      if (Math.random() > debuffChance) {
+        messages.push(defender.name + ' bleibt standhaft.');
+        return;
+      }
       defender.stages[debuffStat] = Math.max(-6, (defender.stages[debuffStat] || 0) - 1);
-      messages.push(defender.name + ' ist verwirrt: ' + debuffStat.toUpperCase() + ' sinkt!');
+      messages.push(defender.name + ': ' + debuffStat.toUpperCase() + ' sinkt!');
     }
   }
 

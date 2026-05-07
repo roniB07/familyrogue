@@ -5,23 +5,30 @@
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   background: radial-gradient(circle at top, #b9e7ff 0%, #7fb8ff 45%, #f7fbff 100%);
   color: #f5f7fb;
   font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 #game-shell {
   width: 100vw;
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 6px;
+  overflow: hidden;
+  touch-action: none;
 }
 
 #game {
   width: min(100vw - 12px, calc((100vh - 12px) * 1.7778));
+  width: min(100vw - 12px, calc((100dvh - 12px) * 1.7778));
   max-width: 100%;
   aspect-ratio: 16 / 9;
   display: grid;
@@ -32,7 +39,51 @@ canvas {
   display: block;
   max-width: 100%;
   max-height: calc(100vh - 12px);
+  max-height: calc(100dvh - 12px);
   border: 2px solid #ffffff;
   box-shadow: 0 18px 60px rgba(30, 80, 150, 0.28);
   image-rendering: auto;
+  touch-action: none;
+  user-select: none;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  #game-shell {
+    padding: 0;
+  }
+
+  #game {
+    width: min(100vw, calc(100dvh * 1.7778));
+  }
+
+  canvas {
+    border: 0;
+    box-shadow: none;
+    max-height: 100dvh;
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  #game-shell {
+    width: 100dvw;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 0;
+  }
+
+  #game {
+    width: calc(100dvw * 1.7778);
+    height: 100dvw;
+    max-width: none;
+    aspect-ratio: 16 / 9;
+    transform: rotate(90deg);
+    transform-origin: center;
+  }
+
+  canvas {
+    max-width: none;
+    max-height: none;
+    border: 0;
+    box-shadow: none;
+  }
 }
